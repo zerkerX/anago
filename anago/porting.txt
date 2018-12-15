@@ -1,0 +1,27 @@
+We don't have environment for Mac and Unix system. We welcome porting 
+unagi/anago. Comments of sources are written in pseudo English and 
+Japanese. Japanese charcter encoding is EUC-JP.
+
+my build environment:
+- MinGW 4.xx
+- MSYS 1.0.011
+- gcc, g++ 3.4.5 (mingw-vista special r3)
+- LibUSB-Win32  0.1.12.2. 
+
+Sources of unagi and anago are written in C99. A few of points depened 
+with Windows API. Used Windows APIs are Sleep(), GetStdHandle() and 
+SetConsoleCursorPosition().
+
+Sleep():
+It is used to wait idle status for tasks.
+
+GetStdHandle() and SetConsoleCursorPosition():
+They are used to render progress bars for cmd.exe.
+
+To port another systems:
+- Prepare C99 and C++ compliler.
+- Prepare LibUSB.
+- Remove #include <windows.h>.
+- Alternate Sleep() for waiting.
+- Remove GetStdHandle() and SetConsoleCursorPosition(). Use escape 
+  sequence.

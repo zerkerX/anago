@@ -1,0 +1,118 @@
+famicom ROM cartridge utility - anago
+by unagi development team
+official project page http://unagi.sourceforge.jp/
+BBS http://unagi.sourceforge.jp/t/bbs.html
+
+--Infoduction--
+'anago' is appended experimental functions for 'unagi''s sources. 
+anago supports 'kazzo' only. Processing speed same as unagi on the 
+dump mode. Processing speed is bit earlier on the programming mode 
+with parallel task.
+
+--command line arguments--
+anago.exe [mode] [script file] [target file] ...
+
+== d D ROM DUMP MODE ==
+anago creates ROM images.
+anago.exe [d??] [script file] [dump file] [mapper]
+d?? or D?? - 
+  It specifies anount of dumpping length. Default parameter is one 
+  time length. First charcter is assigned for CPU region, second 
+  charcter is assigned for PPU region in '??'.
+  '2' twice time. It is avalible for unrom.ad, mmc3.ad and mmc5.ad.
+  '4' quad time. It is avalible for mmc5.ad.
+D?? - Dumpping progress display is same as unagi.exe.
+script file - It specifies .ad file for target cartridge.
+dump file - It specifies creating .nes file.
+It is not usually necessary as follows. 
+mapper - It changes mapper number.
+
+example1.1: Getting an image for UNROM
+> anago.exe d unrom.ad unrom.nes
+anago get vram mirroring connection from target cartridge.
+
+example1.2: Getting an image for UOROM
+> anago.exe d2 unrom.ad unrom.nes
+UOROM data size is twice UNROM one. Spcicify by hand this 
+configuration. Bacause the software of UOROM is less than that of 
+UNROM.
+
+example2: Getting an image for Metal Slader Glory / ELROM
+> anago.exe d22 mmc5.ad hal_4j.nes
+In many cases, it is enough by 2M+2M to dump images for MMC5. MMC5 can 
+manage 8M+8M. Please specify it individually according to capacity. 
+
+example3: Getting an image for Ys III / TKSROM
+> anago.exe d mmc3.ad vfr_q8_12.nes 118
+Enter digits on last commandline word to change mapper number for MMC3 
+variants. 
+
+== f F FLASH MEMORY PROGRAMMING MODE ==
+anago programs ROM image data to the flash memory cartridge which is 
+replaced ROMs to flash memeries on the cartridge.
+
+anago.exe [f??] [script file] [programming file] [cpu device] [ppu device]
+f?? or F?? - 
+  It specifies how to tranfer. Default parameter is 'f'. First 
+  charcter is assigned for CPU region, second charcter is assigned for 
+  PPU region in '??'.
+  'f' anago transfer to all of manegeble memory area. It has full 
+      compatiblity for smaller ROM image than manageble memory area. 
+      It is needed a lot of tranferation times, it's a bad point.
+  't' anago transfer data based top of manegeble memory area. In many 
+      cases, program memory works with it. Most of charcter memory 
+      works.
+  'b' anago transfer data based bottom of manegeble memory area. 
+F?? - anago compare datas to programmed memory area. If compare result 
+      is bad, proramming is aborted.
+script file - It specifies .af file for target cartridge.
+programming file - It specifies programming .nes file.
+cpu device, ppu device -
+  It specifies connected flash memories on the target board. Supported 
+  devices are written in flashdevice.nut. 'dummy' is a spcial device. 
+  It is not tranfer data.
+
+example1.1: Tranfer 1M+1M image to mmc3 / TLROM.
+> anago.exe f mmc3.af tlrom_1M_1M.nes AM29F040B AM29F040B
+MMC3 can manage 4M+2M. anago transfer quad times 1M data in 4M. anago 
+transfer twice times 1M data in 2M. 
+It can get same image on the dump mode with this tranfer method.
+
+example1.2: Tranfer 1M+1M image to mmc3 / TLROM.
+> anago.exe ftt mmc3.af tlrom_1M_1M.nes AM29F040B AM29F040B
+anago transfer 1M data in 4M of top. anago transfer 1M data in 2M of 
+top. Transfer time can be saved. 
+
+example1.3: Tranfer 1M+1M image to mmc3 / TLROM.
+> anago.exe fbt mmc3.af tlrom_1M_1M.nes AM29F040B AM29F040B
+anago transfer 1M data in 4M of bottom. anago transfer 1M data in 2M 
+of top. It often works the program image of Konami and Namcot. 
+
+Incidentally, mmc3 has not compatiblity program image of Namcot 109. 
+109 board is hard-wired vram mirroring, mmc3 does not.
+
+More incidentally, Namcot 106 is fictitious device which is well known 
+extra sound function. Don't miss 109 and 106.
+
+example2: tranfer UNROM(1M) image to UOROM.
+> anago.exe ft uorom.af unrom.nes AM29F040B
+If charcter memory is RAM, charcter device can be skip.
+
+example3: Transfferring only charcter ROM image to mmc1/ SLROM
+> anago.exe ftt mmc1_slrom.af skrom.nes dummy AM29F040B
+> anago.exe fet mmc1_slrom.af skrom.nes AM29F040B AM29F040B
+anago works same behave. Please use favorite one. 
+
+--misc infomations--
+- It is difficult to explain the concept of top and bottom tranfer. 
+  You have not understanded them, please use full tranfer.
+- anago does not have RAM reading/writing mode. Plase use unagi.
+
+--used libaries---
+[LibUSB-Win32]
+Copyright (c) 2002-2004 Stephan Meyer, <ste_meyer@web.de>
+Copyright (c) 2000-2004 Johannes Erdfelt, <johannes@erdfelt.com>
+Copyright (c) Thomas Sailer, <sailer@ife.ee.ethz.ch>
+[SQUIRREL 2.1.2 stable] Copyright (c) 2003-2007 Alberto Demichelis
+[opendevice.c] (c) 2008 by OBJECTIVE DEVELOPMENT Software GmbH
+
