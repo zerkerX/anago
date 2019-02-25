@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "memory_manage.h"
 #include "type.h"
 #include "flash_device.h"

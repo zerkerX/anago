@@ -1,8 +1,8 @@
 #ifndef _READER_MASTER_H_
 #define _READER_MASTER_H_
 #include "type.h"
-#include <windows.h>
-//C++ ¤Î Class ¤â¤É¤­¤ò C ¤Ç¼ÂÁõ¤·¤Æ¤¤¤ë´¶¤¬Áı¤·¤Æ¤­¤¿...
+#include <unistd.h>
+//C++ ã® Class ã‚‚ã©ãã‚’ C ã§å®Ÿè£…ã—ã¦ã„ã‚‹æ„ŸãŒå¢—ã—ã¦ããŸ...
 enum reader_control{
 	READER_OPEN, READER_CLOSE
 };
@@ -37,7 +37,7 @@ enum{
 	M2_CONTROL_TRUE, M2_CONTROL_FALSE
 };
 /*
-static inline ¤Ï¶¦Í­¥Ş¥¯¥í°·¤¤
+static inline ã¯å…±æœ‰ãƒã‚¯ãƒ­æ‰±ã„
 */
 static inline int bit_set(int data, const int bit)
 {
@@ -56,6 +56,6 @@ static inline void wait(long msec)
 	if(msec == 0){
 		return;
 	}
-	Sleep(msec);
+	usleep(msec*1000);
 }
 #endif

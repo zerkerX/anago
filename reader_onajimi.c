@@ -1,8 +1,8 @@
 /*
 famicom ROM cartridge utility - unagi
-emuste.net ¤Ç¤ª¤Ê¤¸¤ß¤Î¤â¤Î¤Î¥Ï¡¼¥É¥É¥é¥¤¥Ğ
+emuste.net ã§ãŠãªã˜ã¿ã®ã‚‚ã®ã®ãƒãƒ¼ãƒ‰ãƒ‰ãƒ©ã‚¤ãƒ
 
-Copyright (C) 2008 ±·³«È¯¶¨Æ±ÁÈ¹ç
+Copyright (C) 2008 é°»é–‹ç™ºå”åŒçµ„åˆ
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -19,12 +19,12 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 memo:
-* -O0 ¤Ê¤é inline asm ¤Ç¤âÈ¿±ş¤Ç¤­¤ë¤¬¡¢-O2 ¤À¤ÈÆ°¤«¤Ê¤¤
- * Í½ÁÛ¤ËÈ¿¤·¤Æ out ¤ÏÆ°¤¯¤¬¡¢ in ¤Ë wait ¤¬É¬Í×¤ß¤¿¤¤
-* gcc ¤Î¥¢¥»¥ó¥Ö¥é¤Ï x86 ¤Ç¤¢¤í¤¦¤È src,dst ¤Î½ç¤ÇÈ¿Å¾¤·¤Æ¤¤¤ë
+* -O0 ãªã‚‰ inline asm ã§ã‚‚åå¿œã§ãã‚‹ãŒã€-O2 ã ã¨å‹•ã‹ãªã„
+ * äºˆæƒ³ã«åã—ã¦ out ã¯å‹•ããŒã€ in ã« wait ãŒå¿…è¦ã¿ãŸã„
+* gcc ã®ã‚¢ã‚»ãƒ³ãƒ–ãƒ©ã¯ x86 ã§ã‚ã‚ã†ã¨ src,dst ã®é †ã§åè»¢ã—ã¦ã„ã‚‹
 * http://download.intel.com/jp/developer/jpdoc/IA32_Arh_Dev_Man_Vol2A_i.pdf
- * out,in ¤Î¥¢¥É¥ì¥¹¤Ë dx ¤ò»È¤ï¤Ê¤¤¤È 8bit ¥¢¥É¥ì¥¹¤Ë¤Ê¤ë
- * out,in ¤Î¥Ç¡¼¥¿¤Ï¥ì¥¸¥¹¥¿¤Ç¥Ç¡¼¥¿Éı¤¬ÊÑ¤ï¤ë al:8bit, ax:16bit, eax:32bit
+ * out,in ã®ã‚¢ãƒ‰ãƒ¬ã‚¹ã« dx ã‚’ä½¿ã‚ãªã„ã¨ 8bit ã‚¢ãƒ‰ãƒ¬ã‚¹ã«ãªã‚‹
+ * out,in ã®ãƒ‡ãƒ¼ã‚¿ã¯ãƒ¬ã‚¸ã‚¹ã‚¿ã§ãƒ‡ãƒ¼ã‚¿å¹…ãŒå¤‰ã‚ã‚‹ al:8bit, ax:16bit, eax:32bit
 */
 #include "type.h"
 #include "paralellport.h"
@@ -48,7 +48,7 @@ static inline void bus_control(int data)
 
 /*
 CONTROL bit0 STROBE
-¥Ç¡¼¥¿¤¬È¿Å¾¤¹¤ë
+ãƒ‡ãƒ¼ã‚¿ãŒåè»¢ã™ã‚‹
 */
 static inline void address_control(int data)
 {
@@ -77,7 +77,7 @@ static void address_reset(void)
 }
 
 /*
-H->L ¤Çaddressincrement
+H->L ã§addressincrement
 */
 static inline void address_increment(int data)
 {
@@ -107,7 +107,7 @@ static void address_set(long address, int control)
 
 /*
 STATUS bit7 BUSY
-¥Ç¡¼¥¿¤¬È¿Å¾¤¹¤ë
+ãƒ‡ãƒ¼ã‚¿ãŒåè»¢ã™ã‚‹
 */
 static inline int data_bit_get(void)
 {
@@ -129,7 +129,7 @@ static inline int data_bit_get(void)
 }
 
 /* 
-L->H ¤Çshift 
+L->H ã§shift 
 */
 static inline void data_shift(int control)
 {
@@ -139,7 +139,7 @@ static inline void data_shift(int control)
 	bus_control(control);
 }
 
-/*ºÇ¾å°Ìbit¤«¤é½çÈÖ¤Ë¤È¤ë*/
+/*æœ€ä¸Šä½bitã‹ã‚‰é †ç•ªã«ã¨ã‚‹*/
 static u8 data_get(int control)
 {
 	int data = 0;
@@ -157,7 +157,7 @@ static u8 data_get(int control)
 	return (u8) data;
 }
 
-//¤³¤³¤Î data ¤Ï 0 or 1
+//ã“ã“ã® data ã¯ 0 or 1
 static inline int writedata_set(long data)
 {
 	data &= 1;
@@ -190,8 +190,8 @@ static void reader_init(void)
 	bus_control(c);
 	address_reset();
 	/*
-	namcot bus °ÂÄê½èÃÖ
-	reader_hongkong »²¾È
+	namcot bus å®‰å®šå‡¦ç½®
+	reader_hongkong å‚ç…§
 	*/
 	while(i != 0){
 		c = bit_set(c, BITNUM_CPU_M2);
@@ -234,16 +234,16 @@ static void fc_bus_read(long address, long length, u8 *data, int control, int m2
 	address_set(address, control);
 	if(m2_control == M2_CONTROL_TRUE){
 		control = bit_clear(control, BITNUM_CPU_M2);
-		bus_control(control); //H->L: mapper ¤¬¥¢¥É¥ì¥¹¤ò¼è¤Ã¤Æ¤¯¤ë
+		bus_control(control); //H->L: mapper ãŒã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’å–ã£ã¦ãã‚‹
 	}
 	while(length != 0){
 		if(m2_control == M2_CONTROL_TRUE){
-			//L->H: mapper ¤¬ data ¤ò½Ğ¤¹
+			//L->H: mapper ãŒ data ã‚’å‡ºã™
 			control = bit_set(control, BITNUM_CPU_M2);
 		}
 		*data = data_get(control);
 		if(m2_control == M2_CONTROL_TRUE){
-			//H->L: ¤ª¤ä¤¹¤ß
+			//H->L: ãŠã‚„ã™ã¿
 			control = bit_clear(control, BITNUM_CPU_M2);
 			bus_control(control);
 			//L->H: increment
@@ -252,7 +252,7 @@ static void fc_bus_read(long address, long length, u8 *data, int control, int m2
 		address_increment(control);
 
 		if(m2_control == M2_CONTROL_TRUE){
-			//H->L: mapper ¤¬¥¢¥É¥ì¥¹¤ò¼è¤Ã¤Æ¤¯¤ë
+			//H->L: mapper ãŒã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’å–ã£ã¦ãã‚‹
 			control = bit_clear(control, BITNUM_CPU_M2);
 			bus_control(control);
 		}
@@ -280,7 +280,7 @@ static void ppu_read(long address, long length, u8 *data)
 6502 write cycle
 t   |01234
 ----+-----
-¦Õ2 |HLHLH
+Ï†2 |HLHLH
 /ROM|HHxxH
 R/W |HHLLH
 
@@ -290,16 +290,16 @@ R/W |HHLLH
 3 H->L mapper: data write enable
 4 L->H mapper: data get, bus:close
 
-H:1, L:0, x:ROMareaaccess»ş0, ¤½¤ì°Ê³°1
+H:1, L:0, x:ROMareaaccessæ™‚0, ãã‚Œä»¥å¤–1
 */
 static void cpu_write_6502(long address, long length, const uint8_t *data)
 {
 	while(length != 0){
 		int control = BUS_CONTROL_BUS_WRITE;
-		//addressÀßÄê + Á´¤Æ¤Î¥Ğ¥¹¤ò»ß¤á¤ë
+		//addressè¨­å®š + å…¨ã¦ã®ãƒã‚¹ã‚’æ­¢ã‚ã‚‹
 		address_set(address, control);
 
-		//¦Õ2 = L, R/W=L, data set, dataout
+		//Ï†2 = L, R/W=L, data set, dataout
 		control = bit_clear(control, BITNUM_CPU_M2);
 		data_set(control, *data);
 		control = bit_clear(control, BITNUM_CPU_RW);
@@ -309,15 +309,15 @@ static void cpu_write_6502(long address, long length, const uint8_t *data)
 		}
 		//wait(wait_msec);
 		
-		//¦Õ2 = H, data out
+		//Ï†2 = H, data out
 		control = bit_set(control, BITNUM_CPU_M2);
 		bus_control(control);
 		//wait(wait_msec);
-		//¦Õ2 = L, H ¤Ë¤¹¤ë¤Ş¤Ç R/W, address, Data ¤òÍ­¸ú¾õÂÖ¤Ë¤¹¤ë
+		//Ï†2 = L, H ã«ã™ã‚‹ã¾ã§ R/W, address, Data ã‚’æœ‰åŠ¹çŠ¶æ…‹ã«ã™ã‚‹
 		control = bit_clear(control, BITNUM_CPU_M2);
 		bus_control(control);
 		//wait(wait_msec);
-		//¦Õ2 = H, R/W = H, address disable, data out disable
+		//Ï†2 = H, R/W = H, address disable, data out disable
 		bus_control(BUS_CONTROL_BUS_WRITE);
 		
 		address += 1;
