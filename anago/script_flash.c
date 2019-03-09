@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <stdio.h>
+#include <string.h>
 #include <squirrel.h>
 #include <sqstdio.h>
 #include <sqstdaux.h>
@@ -48,6 +49,7 @@ static SQInteger vram_mirrorfind(HSQUIRRELVM v)
 	}
 	return 0;
 }
+
 static SQInteger command_set(HSQUIRRELVM v, struct anago_flash_order *t)
 {
 	long command, address ,mask;
@@ -73,6 +75,7 @@ static SQInteger command_set(HSQUIRRELVM v, struct anago_flash_order *t)
 	t->command_change = true;
 	return 0;
 }
+
 static SQInteger cpu_command(HSQUIRRELVM v)
 {
 	struct anago_driver *d;
@@ -82,6 +85,7 @@ static SQInteger cpu_command(HSQUIRRELVM v)
 	}
 	return command_set(v, &d->order_cpu);
 }
+
 static SQInteger ppu_command(HSQUIRRELVM v)
 {
 	struct anago_driver *d;
@@ -91,7 +95,8 @@ static SQInteger ppu_command(HSQUIRRELVM v)
 	}
 	return command_set(v, &d->order_ppu);
 }
-static SQInteger write(HSQUIRRELVM v, struct anago_flash_order *t)
+
+static SQInteger write_data(HSQUIRRELVM v, struct anago_flash_order *t)
 {
 	long address, data;
 	SQRESULT r = qr_argument_get(v, 2, &address, &data);
@@ -102,6 +107,7 @@ static SQInteger write(HSQUIRRELVM v, struct anago_flash_order *t)
 	t->write(address, 1, &d8);
 	return 0;
 }
+
 static SQInteger cpu_write(HSQUIRRELVM v)
 {
 	struct anago_driver *d;
@@ -109,8 +115,9 @@ static SQInteger cpu_write(HSQUIRRELVM v)
 	if(SQ_FAILED(r)){
 		return r;
 	}
-	return write(v, &d->order_cpu);
+	return write_data(v, &d->order_cpu);
 }
+
 static SQInteger erase_set(HSQUIRRELVM v, struct anago_flash_order *t, const char *region)
 {
 	t->config(t->c000x, t->c2aaa, t->c5555, t->device->pagesize);
@@ -122,6 +129,7 @@ static SQInteger erase_set(HSQUIRRELVM v, struct anago_flash_order *t, const cha
 	}
 	return 0;
 }
+
 static SQInteger cpu_erase(HSQUIRRELVM v)
 {
 	struct anago_driver *d;
@@ -131,6 +139,7 @@ static SQInteger cpu_erase(HSQUIRRELVM v)
 	}
 	return erase_set(v, &d->order_cpu, "program");
 }
+
 static SQInteger ppu_erase(HSQUIRRELVM v)
 {
 	struct anago_driver *d;
@@ -140,6 +149,7 @@ static SQInteger ppu_erase(HSQUIRRELVM v)
 	}
 	return erase_set(v, &d->order_ppu, "charcter");
 }
+
 static SQInteger program_regist(HSQUIRRELVM v, const char *name, struct anago_flash_order *t)
 {
 	SQRESULT r = qr_argument_get(v, 2, &t->programming.address, &t->programming.length);
@@ -157,6 +167,7 @@ static SQInteger program_regist(HSQUIRRELVM v, const char *name, struct anago_fl
 	fflush(stdout);*/
 	return sq_suspendvm(v);
 }
+
 static void program_execute(struct anago_flash_order *t)
 {
 	const long w = t->program(t->programming.address, t->programming.length, t->memory->data + t->memory->offset, false);
@@ -178,6 +189,7 @@ static bool program_compare(struct anago_flash_order *t)
 	Free(comparea);
 	return ret;
 }
+
 static SQInteger cpu_program_memory(HSQUIRRELVM v)
 {
 	struct anago_driver *d;
@@ -208,6 +220,7 @@ static long erase_timer_get(struct anago_flash_order *t)
 		return 0;
 	}
 }
+
 static SQInteger erase_wait(HSQUIRRELVM v)
 {
 	struct anago_driver *d;
@@ -221,11 +234,11 @@ static SQInteger erase_wait(HSQUIRRELVM v)
 		if(timer_wait < timer_ppu){
 			timer_wait = timer_ppu;
 		}
-		Sleep(timer_wait);
+		usleep(1000*timer_wait);
 	}else{
 		uint8_t s[2];
 		do{
-			Sleep(2);
+			usleep(2000);
 			d->flash_status(s);
 		}while((s[0] != 0) && (s[1] != 0));
 	}
@@ -242,7 +255,7 @@ static bool program_memoryarea(HSQUIRRELVM co, struct anago_flash_order *t, bool
 			}
 		}
 
-		sq_wakeupvm(co, SQFalse, SQFalse, SQTrue/*, SQTrue*/);
+		sq_wakeupvm(co, SQFalse, SQFalse, SQTrue, SQFalse);
 		*state = sq_getvmstate(co);
 	}else{
 		program_execute(t);
@@ -270,13 +283,13 @@ static SQInteger program_main(HSQUIRRELVM v)
 	}
 	SQInteger state_cpu = sq_getvmstate(co_cpu);
 	SQInteger state_ppu = sq_getvmstate(co_ppu);
-	const long sleepms = d->compare == true ? 6 : 2; //W29C040 ¤Ç compare ¤ò¤¹¤ë¤È¡¢error ¤¬½Ð¤ë¤Î¤Ç½Ð¤Ê¤¤ÃÍ¤ËÄ´À° (¤ä¤Ã¤Ä¤±ÂÐ±þ)
+	const long sleepms = d->compare == true ? 6 : 2; //W29C040 ã§ compare ã‚’ã™ã‚‹ã¨ã€error ãŒå‡ºã‚‹ã®ã§å‡ºãªã„å€¤ã«èª¿æ•´ (ã‚„ã£ã¤ã‘å¯¾å¿œ)
 	
 	progress_init();
 	while((state_cpu != SQ_VMSTATE_IDLE) || (state_ppu != SQ_VMSTATE_IDLE)){
 		uint8_t s[2];
 		bool console_update = false;
-		Sleep(sleepms);
+		usleep(1000*sleepms);
 		d->flash_status(s);
 		if(state_cpu != SQ_VMSTATE_IDLE && s[0] == KAZZO_TASK_FLASH_IDLE){
 			if(program_memoryarea(co_cpu, &d->order_cpu, d->compare, "program", &state_cpu, &console_update) == false){
@@ -312,6 +325,7 @@ static SQInteger program_count(HSQUIRRELVM v, struct anago_flash_order *t, const
 	t->programming.count += t->programming.length;
 	return 0;
 }
+
 static SQInteger cpu_program_count(HSQUIRRELVM v)
 {
 	static const struct range range_address = {0x8000, 0x10000};

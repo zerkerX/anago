@@ -24,7 +24,7 @@ HSQUIRRELVM qr_open(void)
 	HSQUIRRELVM v = sq_open(0x400);
 	sqstd_seterrorhandlers(v);
 	sqstd_register_iolib(v);
-	sq_setprintfunc(v, printfunc);
+	sq_setprintfunc(v, printfunc, printfunc);
 	sq_pushroottable(v);
 	return v;
 }

@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <stdlib.h>
+#include <string.h>
 #include <usb.h>
 #include <kazzo_request.h>
 #include <kazzo_task.h>
@@ -27,6 +28,7 @@ static usb_dev_handle *device_open(void)
 	fprintf(stderr, "Could not find USB device \"%s\" with vid=0x%x pid=0x%x\n", product, vid, pid);
 	return NULL;
 }
+
 static usb_dev_handle *handle = NULL;
 static int kazzo_open_close(enum reader_control oc)
 {
@@ -45,13 +47,14 @@ enum{
 	TIMEOUT = 4000
 };
 //-------- read sequence --------
-static void device_read(usb_dev_handle *handle, enum request r, enum index index, long address, long length, uint8_t *data)
+static void device_read(usb_dev_handle *handle, enum request r, enum index index, 
+    long address, long length, uint8_t *data)
 {
 	int cnt = usb_control_msg(
 		handle, 
 		USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_IN, 
 		r, address, 
-		index, data, length, TIMEOUT
+		index, (char *)data, length, TIMEOUT
 	);
 	if(cnt != length){
 		puts(__FUNCTION__);
@@ -59,6 +62,7 @@ static void device_read(usb_dev_handle *handle, enum request r, enum index index
 		exit(1);
 	}
 }
+
 static void read_main(const enum request r, enum index index, long address, long length, uint8_t *data)
 {
 	const int packet = READ_PACKET_SIZE;
@@ -72,23 +76,27 @@ static void read_main(const enum request r, enum index index, long address, long
 		device_read(handle, r, index, address, length, data);
 	}
 }
+
 static void kazzo_cpu_read(long address, long length, uint8_t *data)
 {
 	read_main(REQUEST_CPU_READ, INDEX_IMPLIED, address, length, data);
 //	read_main(REQUEST_CPU_READ_6502, address, length, data);
 }
+
 static void kazzo_ppu_read(long address, long length, uint8_t *data)
 {
 	read_main(REQUEST_PPU_READ, INDEX_IMPLIED, address, length, data);
 }
+
 //-------- write sequence --------
 /*
-When host send data that contains 0xff many times, v-usb losts some 
+When host send data that contains 0xff many times, v-usb loses some 
 bits. To prevent losting bits, mask data xor 0xa5;
 */
-static void device_write(usb_dev_handle *handle, enum request w, enum index index, long address, long length, const uint8_t *data)
+static void device_write(usb_dev_handle *handle, enum request w, 
+    enum index index, long address, long length, const uint8_t *data)
 {
-	uint8_t *d = Malloc(length);
+	uint8_t *d = malloc(length);
 	int i;
 	memcpy(d, data, length);
 	for(i = 0; i < length; i++){
@@ -98,7 +106,7 @@ static void device_write(usb_dev_handle *handle, enum request w, enum index inde
 		handle, 
 		USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_ENDPOINT_OUT,
 		w, address, 
-		index, d, length, TIMEOUT
+		index, (char *)d, length, TIMEOUT
 	);
 	if(cnt != length){
 		puts(__FUNCTION__);

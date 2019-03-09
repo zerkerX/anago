@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <windows.h>
 #include "progress.h"
 
 void progress_init(void)
@@ -40,25 +39,13 @@ static void draw(const char *name, long offset, long count)
 	*t = '\0';
 	puts(bar);
 }
+
 void progress_draw(long program_offset, long program_count, long charcter_offset, long charcter_count)
 {
-	if(0){
-		printf("\x1b[2A\x1b[35D");
-	}else{
-		HANDLE c;
-		CONSOLE_SCREEN_BUFFER_INFO info;
-		c = GetStdHandle(STD_OUTPUT_HANDLE);
-		if(GetConsoleScreenBufferInfo(c, &info) == 0){
-			//command.com, cygwin shell, mingw shell
-			printf("\x1b[2A\x1b[35D");
-		}else{
-			//cmd.exe
-			info.dwCursorPosition.X = 0;
-			info.dwCursorPosition.Y -= 2;
-			SetConsoleCursorPosition(c, info.dwCursorPosition);
-		}
-	}
-	draw("program memory ", program_offset, program_count);
+    /* TODO: Use ncurses instead. */
+    printf("\x1b[2A\x1b[35D");
+	
+    draw("program memory ", program_offset, program_count);
 	draw("charcter memory", charcter_offset, charcter_count);
 	fflush(stdout);
 }

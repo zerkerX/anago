@@ -18,7 +18,7 @@ OBJ = anago.o header.o crc32.o file.o \
 clean:
 	rm -f $(OBJ)
 anago: $(OBJ) 
-	g++ -o $@ $(LDFLAG) $(OBJ) -lusb -lsqstdlib -lsquirrel3
+	g++ -o $@ $(LDFLAG) $(OBJ) -lusb -lsqstdlib3 -lsquirrel3
 
 script_flash.o: squirrel_wrap.h
 script_dump.o: squirrel_wrap.h

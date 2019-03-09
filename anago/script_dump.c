@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <stdio.h>
+#include <string.h>
 #include <squirrel.h>
 #include <sqstdio.h>
 #include <sqstdaux.h>
@@ -23,7 +24,8 @@ struct dump_driver{
 	uint8_t (*const vram_connection)(void);
 	bool progress;
 };
-static SQInteger write(HSQUIRRELVM v, struct memory_driver *t)
+
+static SQInteger write_data(HSQUIRRELVM v, struct memory_driver *t)
 {
 	long address, data;
 	SQRESULT r = qr_argument_get(v, 2, &address, &data);
@@ -34,6 +36,7 @@ static SQInteger write(HSQUIRRELVM v, struct memory_driver *t)
 	t->write(address, 1, &d8);
 	return 0;
 }
+
 static SQInteger cpu_write(HSQUIRRELVM v)
 {
 	struct dump_driver *d;
@@ -41,7 +44,7 @@ static SQInteger cpu_write(HSQUIRRELVM v)
 	if(SQ_FAILED(r)){
 		return r;
 	}
-	return write(v, &d->cpu);
+	return write_data(v, &d->cpu);
 }
 
 static void buffer_show(struct memory *t, long length)
@@ -82,7 +85,8 @@ static void progress_show(struct dump_driver *d)
 		progress_draw(d->cpu.memory.offset, d->cpu.memory.size, d->ppu.memory.offset, d->ppu.memory.size);
 	}
 }
-static SQInteger read(HSQUIRRELVM v, struct memory_driver *t, bool progress)
+
+static SQInteger read_data(HSQUIRRELVM v, struct memory_driver *t, bool progress)
 {
 	long address, length;
 	SQRESULT r = qr_argument_get(v, 2, &address, &length);
@@ -96,6 +100,7 @@ static SQInteger read(HSQUIRRELVM v, struct memory_driver *t, bool progress)
 	t->memory.offset += length;
 	return 0;
 }
+
 static SQInteger cpu_read(HSQUIRRELVM v)
 {
 	struct dump_driver *d;
@@ -103,7 +108,7 @@ static SQInteger cpu_read(HSQUIRRELVM v)
 	if(SQ_FAILED(r)){
 		return r;
 	}
-	r = read(v, &d->cpu, d->progress);
+	r = read_data(v, &d->cpu, d->progress);
 	progress_show(d);
 	return r;
 }
@@ -115,7 +120,7 @@ static SQInteger ppu_read(HSQUIRRELVM v)
 	if(SQ_FAILED(r)){
 		return r;
 	}
-	r = read(v, &d->ppu, d->progress);
+	r = read_data(v, &d->ppu, d->progress);
 	progress_show(d);
 	return r;
 }
@@ -153,7 +158,7 @@ static SQInteger ppu_ramfind(HSQUIRRELVM v)
 	return 1;
 }
 
-//test »ş/1ÅÙÌÜ¤Î call ¤Ç»ÈÍÑ
+//test æ™‚/1åº¦ç›®ã® call ã§ä½¿ç”¨
 static SQInteger memory_new(HSQUIRRELVM v)
 {
 	struct dump_driver *d;
@@ -172,7 +177,7 @@ static SQInteger memory_new(HSQUIRRELVM v)
 	return 0;
 }
 
-//dump »ş/2ÅÙÌÜ¤Î call ¤Ç nesfile_save ¤È¤·¤Æ»ÈÍÑ
+//dump æ™‚/2åº¦ç›®ã® call ã§ nesfile_save ã¨ã—ã¦ä½¿ç”¨
 static SQInteger nesfile_save(HSQUIRRELVM v)
 {
 	struct dump_driver *d;
@@ -206,7 +211,7 @@ static SQInteger nesfile_save(HSQUIRRELVM v)
 	return 0;
 }
 
-//dump »ş/1ÅÙÌÜ¤Î call ¤Ç nesfile_save ¤È¤·¤Æ»ÈÍÑ
+//dump æ™‚/1åº¦ç›®ã® call ã§ nesfile_save ã¨ã—ã¦ä½¿ç”¨
 static SQInteger length_check(HSQUIRRELVM v)
 {
 	struct dump_driver *d;
@@ -255,7 +260,7 @@ static SQInteger read_count(HSQUIRRELVM v, struct memory_driver *t, const struct
 static SQInteger cpu_read_count(HSQUIRRELVM v)
 {
 	static const struct range range_address = {0x8000, 0x10000};
-	//length == 0 ¤Ï ÂĞ¾İ¥¢¥É¥ì¥¹¤ò¸Æ¤ó¤Ç¡¢¥Ğ¥Ã¥Õ¥¡¤Ë¤¤¤ì¤Ê¤¤¡£mmc2, mmc4 ¤Ç»ÈÍÑ¤¹¤ë¡£
+	//length == 0 ã¯ å¯¾è±¡ã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’å‘¼ã‚“ã§ã€ãƒãƒƒãƒ•ã‚¡ã«ã„ã‚Œãªã„ã€‚mmc2, mmc4 ã§ä½¿ç”¨ã™ã‚‹ã€‚
 	static const struct range range_length = {0x0000, 0x4000};
 	struct dump_driver *d;
 	SQRESULT r =  qr_userpointer_get(v, (SQUserPointer) &d);
