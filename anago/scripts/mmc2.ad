@@ -1,0 +1,29 @@
+board <- {
+	mappernum = 9,
+	cpu_romsize = 1 * mega, cpu_banksize = 0x2000,
+	ppu_romsize = 1 * mega, ppu_banksize = 0x1000,
+	ppu_ramfind = false, vram_mirrorfind = false
+};
+
+function cpu_dump(d, pagesize, banksize)
+{
+	for(local i = 0; i < pagesize - 3; i += 1){ //Read all but last two banks
+		cpu_write(d, 0xA000, i); 	//8KB bank @ $8000
+		cpu_read(d, 0x8000, banksize * 1);	 //Read 8KB bank from $8000-9FFF
+	}
+	//Read last 2x 8KB ($C000-FFFF fixed to last)
+	cpu_read(d, 0xA000, banksize * 1);
+	cpu_read(d, 0xC000, banksize * 1);
+	cpu_read(d, 0xE000, banksize * 1);
+}
+function ppu_dump(d, pagesize, banksize)
+{
+	for(local i = 0; i < pagesize; i+=2){
+		//just set both banks so we don't have to worry about auto-switching
+		cpu_write(d, 0xB000, i);	//4KB bank @ $0000	
+		cpu_write(d, 0xC000, i);	//4KB bank @ $0000
+		cpu_write(d, 0xD000, i | 1);	//4KB bank @ $1000
+		cpu_write(d, 0xE000, i | 1);	//4KB bank @ $1000
+		ppu_read(d, 0x0000, banksize * 2);	//Read 8KB (entire CHR space $0000-1FFF
+	}
+}

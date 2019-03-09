@@ -1,0 +1,34 @@
+board <- {
+	mappernum = 1,
+	cpu_romsize = 1 * mega, cpu_banksize = 0x4000,
+	ppu_romsize = 1 * mega, ppu_banksize = 0x1000,
+	ppu_ramfind = true, vram_mirrorfind = false
+};
+
+//send 1bit serial 5 times
+function mmc1_write(d, address, data)
+{
+	for(local i = 0; i < 5; i++){
+		cpu_write(d, address, data >> i);
+	}
+}
+
+function cpu_dump(d, pagesize, banksize)
+{
+	cpu_write(d, 0x8000, 0x80); //serial count reset
+	mmc1_write(d, 0x8000, 0x0c); //CPU/PPU bank configuration
+	for(local i = 0; i < pagesize - 1; i += 1){
+		mmc1_write(d, 0xe000, i);
+		cpu_read(d, 0x8000, banksize);
+	}
+	cpu_read(d, 0xc000, banksize);
+}
+
+function ppu_dump(d, pagesize, banksize)
+{
+	for(local i = 0; i < pagesize - 1; i += 2){
+		mmc1_write(d, 0xa000, i);
+		mmc1_write(d, 0xc000, i | 1);
+		ppu_read(d, 0, banksize * 2);
+	}
+}

@@ -1,0 +1,44 @@
+board <- {
+	mappernum = 69,
+	cpu_romsize = 2 * mega, cpu_banksize = 0x2000,
+	ppu_romsize = 1 * mega, ppu_banksize = 0x0400,
+	ppu_ramfind = true, vram_mirrorfind = false
+};
+
+function cpu_dump(d, pagesize, banksize)
+{
+	for(local i = 0; i < pagesize - 2; i += 2){ //Read all but last two banks
+		cpu_write(d, 0x8000, 9);
+		cpu_write(d, 0xA000, i); 	//8KB bank @ $8000
+		cpu_write(d, 0x8000, 0x0A);
+		cpu_write(d, 0xA000, i | 1); 	//8KB bank @ $A000
+		cpu_read(d, 0x8000, banksize * 2);	 //Read 2x 8KB chunk from $8000-BFFF
+	}
+	//Read last 16KB ($D000-FFFF fixed to last)
+	cpu_write(d, 0x8000, 0x0B);
+	cpu_write(d, 0xA000, 0xFE); //8KB bank @ $C000 (set to second to last)
+	cpu_read(d, 0xc000, banksize * 2);
+}
+function ppu_dump(d, pagesize, banksize)
+{
+	for(local i = 0; i < pagesize; i+=8){
+		//8x 1KB banks PT0 & PT1
+		cpu_write(d, 0x8000, 0);	
+		cpu_write(d, 0xA000, i);	//1KB bank @ $0000
+		cpu_write(d, 0x8000, 0);	
+		cpu_write(d, 0xA000, i | 1);	//1KB bank @ $0400
+		cpu_write(d, 0x8000, 0);	
+		cpu_write(d, 0xA000, i | 2);	//1KB bank @ $0C00
+		cpu_write(d, 0x8000, 1);	
+		cpu_write(d, 0xA000, i | 3);	//1KB bank @ $0800
+		cpu_write(d, 0x8000, 2);	
+		cpu_write(d, 0xA000, i | 4);	//1KB bank @ $1000
+		cpu_write(d, 0x8000, 3);
+		cpu_write(d, 0xA000, i | 5);	//1KB bank @ $1400
+		cpu_write(d, 0x8000, 4);	
+		cpu_write(d, 0xA000, i | 6);	//1KB bank @ $1800
+		cpu_write(d, 0x8000, 5);	
+		cpu_write(d, 0xA000, i | 7);	//1KB bank @ $1C00
+		ppu_read(d, 0x0000, banksize * 8);	//Read 8KB (entire CHR space $0000-1FFF
+	}
+}

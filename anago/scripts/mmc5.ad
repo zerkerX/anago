@@ -1,0 +1,28 @@
+board <- {
+	mappernum = 5,
+	cpu_romsize = 2 * mega, cpu_banksize = 0x2000,
+	ppu_romsize = 2 * mega, ppu_banksize = 0x2000,
+	ppu_ramfind = true, vram_mirrorfind = false
+};
+
+function cpu_dump(d, pagesize, banksize)
+{
+	cpu_write(d, 0x5100, 0);
+	for(local i = 0x80; i < (pagesize | 0x80) - 2; i += 2){
+		cpu_write(d, 0x5114, i);
+		cpu_write(d, 0x5115, i | 1);
+		cpu_read(d, 0x8000, banksize * 2);
+	}
+	cpu_write(d, 0x5116, 0xfe);
+	cpu_write(d, 0x5117, 0xff);
+	cpu_read(d, 0xc000, banksize * 2);
+}
+function ppu_dump(d, pagesize, banksize)
+{
+	cpu_write(d, 0x5101, 0);
+	for(local i = 0; i < pagesize; i+=1){
+		cpu_write(d, 0x5127, i);
+		cpu_write(d, 0x512b, i);
+		ppu_read(d, 0, banksize);
+	}
+}
