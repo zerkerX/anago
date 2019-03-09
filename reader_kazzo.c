@@ -22,10 +22,13 @@ static usb_dev_handle *device_open(void)
 	vid = (rawVid[1] << 8) | rawVid[0];
 	pid = (rawPid[1] << 8) | rawPid[0];
 
-	if(usbOpenDevice(&handle, vid, vendor, pid, product, NULL, NULL, NULL) == 0){
+	usb_init();
+	int open_result = usbOpenDevice(&handle, vid, vendor, pid, product, NULL, NULL, NULL);
+	if(open_result == USBOPEN_SUCCESS){
 		return handle;
 	}
-	fprintf(stderr, "Could not find USB device \"%s\" with vid=0x%x pid=0x%x\n", product, vid, pid);
+	fprintf(stderr, "Could not find USB device \"%s\" with vid=0x%x pid=0x%x; code: %d\n", 
+		product, vid, pid, open_result);
 	return NULL;
 }
 
@@ -96,7 +99,7 @@ bits. To prevent losting bits, mask data xor 0xa5;
 static void device_write(usb_dev_handle *handle, enum request w, 
     enum index index, long address, long length, const uint8_t *data)
 {
-	uint8_t *d = malloc(length);
+	uint8_t *d = Malloc(length);
 	int i;
 	memcpy(d, data, length);
 	for(i = 0; i < length; i++){
