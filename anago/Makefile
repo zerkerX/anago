@@ -2,7 +2,7 @@ all: anago
 #LIBUSB = d:/dev/LibUSB-Win32
 SQUIRREL = /usr/include/squirrel3
 
-KAZZO = ../unagi_kazzo/firmware
+KAZZO = kazzo
 VPATH = ..
 CFLAGS = -g -O0
 #CFLAGS = -O2
