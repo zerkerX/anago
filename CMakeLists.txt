@@ -35,3 +35,7 @@ add_executable(anago
     squirrel_wrap.c
     usb_device.c
 )
+
+install(TARGETS anago
+    RUNTIME DESTINATION bin )
+install(DIRECTORY scripts/ DESTINATION share/anago)
