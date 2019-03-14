@@ -51,7 +51,10 @@ void buf_save(const void *buf, const char *file, int size)
 	fclose(fp);
 }
 
-static char script_path[PATH_MAX];
+/* Apparently PATH_MAX needs to be in a function to be used, 
+ * but we need to pick something... */
+#define MAX_ALLOWED_PATH 4096
+static char script_path[MAX_ALLOWED_PATH];
 
 /* TODO: Use config generator! */
 #define INSTALL_PREFIX "/usr/local/"
@@ -67,7 +70,7 @@ static const char * test_path(const char * path, const char * name)
 {
 	const char * result = NULL;
 	
-	if (strlen(path) + strlen(name) < PATH_MAX)
+	if (strlen(path) + strlen(name) < MAX_ALLOWED_PATH)
 	{
 		FILE * fp;
 		
@@ -76,7 +79,7 @@ static const char * test_path(const char * path, const char * name)
 		strcpy(script_path, path);
 		strcat(script_path, name);
 		
-		fp = fopen(script_path, 'r');
+		fp = fopen(script_path, "r");
 		
 		if (fp != NULL)
 		{
@@ -84,6 +87,8 @@ static const char * test_path(const char * path, const char * name)
 			result = script_path;
 		}
 	}
+	
+	return result;
 }
 
 const char * find_script(const char * name)

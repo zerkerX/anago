@@ -6,6 +6,7 @@
 #include <sqstdaux.h>
 #include <kazzo_task.h>
 #include "type.h"
+#include "file.h"
 #include "header.h"
 #include "memory_manage.h"
 #include "reader_master.h"
@@ -353,10 +354,10 @@ static SQInteger ppu_program_count(HSQUIRRELVM v)
 static bool script_execute(HSQUIRRELVM v, struct config_flash *c, struct anago_driver *d)
 {
 	bool ret = true;
-	if(SQ_FAILED(sqstd_dofile(v, _SC("flashcore.nut"), SQFalse, SQTrue))){
+	if(SQ_FAILED(sqstd_dofile(v, _SC(find_script("flashcore.nut")), SQFalse, SQTrue))){
 		printf("flash core script error\n");
 		ret = false;
-	}else if(SQ_FAILED(sqstd_dofile(v, _SC(c->script), SQFalse, SQTrue))){
+	}else if(SQ_FAILED(sqstd_dofile(v, _SC(find_script(c->script)), SQFalse, SQTrue))){
 		printf("%s open error\n", c->script);
 		ret = false;
 	}else{

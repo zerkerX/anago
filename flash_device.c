@@ -4,6 +4,7 @@
 #include <sqstdio.h>
 #include <sqstdaux.h>
 #include "type.h"
+#include "file.h"
 #include "memory_manage.h"
 #include "squirrel_wrap.h"
 #include "flash_device.h"
@@ -64,7 +65,7 @@ static bool bool_get(HSQUIRRELVM v, const char *field, bool *ret)
 bool flash_device_get(const char *name, struct flash_device *t)
 {
 	HSQUIRRELVM v = qr_open(); 
-	if(SQ_FAILED(sqstd_dofile(v, _SC("flashdevice.nut"), SQFalse, SQTrue))){
+	if(SQ_FAILED(sqstd_dofile(v, _SC(find_script("flashdevice.nut")), SQFalse, SQTrue))){
 		puts("flash device script error");
 		qr_close(v);
 		return false;

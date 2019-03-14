@@ -4,6 +4,7 @@
 #include <sqstdio.h>
 #include <sqstdaux.h>
 #include "type.h"
+#include "file.h"
 #include "squirrel_wrap.h"
 #include "script_common.h"
 
@@ -49,7 +50,7 @@ SQInteger script_require(HSQUIRRELVM v)
 	if(SQ_FAILED(sq_getstring(v, 2, &file))){
 		return sq_throwerror(v, "require error");
 	}
-	if(SQ_FAILED(sqstd_dofile(v, _SC(file), SQFalse, SQTrue))){
+	if(SQ_FAILED(sqstd_dofile(v, _SC(find_script(file)), SQFalse, SQTrue))){
 		return sq_throwerror(v, "require error");
 	}
 	return 0;

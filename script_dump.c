@@ -4,6 +4,7 @@
 #include <squirrel.h>
 #include <sqstdio.h>
 #include <sqstdaux.h>
+#include "file.h"
 #include "type.h"
 #include "header.h"
 #include "progress.h"
@@ -285,10 +286,10 @@ static SQInteger ppu_read_count(HSQUIRRELVM v)
 static bool script_execute(HSQUIRRELVM v, struct config_dump *c, struct dump_driver *d)
 {
 	bool ret = true;
-	if(SQ_FAILED(sqstd_dofile(v, _SC("dumpcore.nut"), SQFalse, SQTrue))){
+	if(SQ_FAILED(sqstd_dofile(v, _SC(find_script("dumpcore.nut")), SQFalse, SQTrue))){
 		printf("dump core script error\n");
 		ret = false;
-	}else if(SQ_FAILED(sqstd_dofile(v, _SC(c->script), SQFalse, SQTrue))){
+	}else if(SQ_FAILED(sqstd_dofile(v, _SC(find_script(c->script)), SQFalse, SQTrue))){
 		printf("%s open error\n", c->script);
 		ret = false;
 	}else{
