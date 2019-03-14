@@ -4,4 +4,5 @@
 int buf_load(u8 *buf, const char *file, int size);
 void* buf_load_full(const char *file, int *size);
 void buf_save(const void *buf, const char *file, int size);
+const char * find_script(const char * name);
 #endif

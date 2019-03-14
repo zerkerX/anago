@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <unistd.h>
+#include <string.h>
 #include "memory_manage.h"
 #include "file.h"
 
@@ -49,3 +51,59 @@ void buf_save(const void *buf, const char *file, int size)
 	fclose(fp);
 }
 
+static char script_path[PATH_MAX];
+
+/* TODO: Use config generator! */
+#define INSTALL_PREFIX "/usr/local/"
+#define SCRIPT_DIR INSTALL_PREFIX "share/anago/"
+
+/* TODO: Find via some better means. Also maybe don't hardcode .config after */
+#define HOME_PATH "/home/zerker/"
+#define CONFIG_DIR HOME_PATH ".config/anago/"
+
+/* Tests if the specified name is in the path. Returns NULL if not found
+ * or not suitable, otherwise returns the combined path. */
+static const char * test_path(const char * path, const char * name)
+{
+	const char * result = NULL;
+	
+	if (strlen(path) + strlen(name) < PATH_MAX)
+	{
+		FILE * fp;
+		
+		/* Work in our static string storage, because that's what
+		 * we will be returning eventually */
+		strcpy(script_path, path);
+		strcat(script_path, name);
+		
+		fp = fopen(script_path, 'r');
+		
+		if (fp != NULL)
+		{
+			fclose(fp);
+			result = script_path;
+		}
+	}
+}
+
+const char * find_script(const char * name)
+{
+	const char * result = NULL;
+	
+	/* Search in user's config folder first */
+	result = test_path(CONFIG_DIR, name);
+	if (result == NULL)
+	{
+		/*Not found. Check share next */
+		result = test_path(SCRIPT_DIR, name);
+		
+		if (result == NULL)
+		{
+			/* Still not found. Just try opening what 
+			 * the user provided. */
+			result = name;
+		}
+	}
+	
+	return result;
+}
