@@ -1,0 +1,37 @@
+/*VRC7 FLASH MEMORY WRITE
+generic CPU memory bank
+cpu address|rom address    |page|task
+$8000-$9fff|0x02000-0x03fff|1   |write (0x2aaa & 0x1fff) + 0x8000
+$a000-$bfff|0x04000-0x05fff|2   |write (0x5555 & 0x1fff) + 0xa000
+$c000-$dfff|n * 0x2000     |n   |write area
+$e000-$efff|末尾           |fix |boot area, 未使用*/
+board <- {
+	mappernum = 85, vram_mirrorfind = false,
+	cpu = {banksize = 0x2000, maxsize = 4 * mega},
+	ppu = {banksize = 0x0400, maxsize = 2 * mega}
+};
+/*
+this is RC851/352402 style. RV051/353429 style is not supported.
+352402: Program ROM/ Charcter RAM/ Backup RAM/ R1 = A5, R0 = A4/ Extra Sound
+353429: Program ROM/ Charcter ROM/ R1 = A3, R0 = ?
+*/
+function initalize(d, cpu_banksize, ppu_banksize)
+{
+	cpu_command(d, 0, 0xc000, cpu_banksize);
+	cpu_command(d, 0x2aaa, 0x8000, cpu_banksize);
+	cpu_command(d, 0x5555, 0xa000, cpu_banksize);
+	cpu_write(d, 0x8000, 1);
+	cpu_write(d, 0x8010, 2);
+	cpu_write(d, 0x9000, 0);
+}
+function cpu_transfer(d, start, end, banksize)
+{
+	for(local i = start; i < end - 1; i += 1){
+		cpu_write(d, 0x9000, i);
+		cpu_program(d, 0xc000, banksize);
+	}
+	cpu_program(d, 0xe000, banksize);
+}
+function ppu_transfer(d, start, end, size)
+{
+}

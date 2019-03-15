@@ -1,0 +1,73 @@
+/*MMC1 ROM 2M + (ROM 1M or RAM) board
+CPU memory bank for SLROM, SKROM, SGROM, SNROM
+cpu address|rom address    |page|task
+$8000-$bfff|n * 0x4000|even 0x00|write 0x2aaa + write area
+$c000-$ffff|0x3c000-0x3ffff|fix |write 0x5555
+---------------------------------
+$8000-$bfff|0x00000-0x03fff|fix |write 0x2aaa
+$c000-$ffff|n * 0x4000|odd  0x01|write 0x5555 + write area
+
+PPU memory bank for SLROM, SKROM
+ppu area use command only mask A0-A10 device
+ppu address|rom address    |page|task
+$0000-$0fff|0x00000 * n    |n   |write area + 0x2aa + 0x555
+$0000-$1fff|0x01000 * n    |n+1 |write area*/
+board <- {
+	mappernum = 1, vram_mirrorfind = false,
+	cpu = {banksize = 0x4000, maxsize = 2 * mega},
+	ppu = {banksize = 0x1000, maxsize = 1 * mega},
+};
+
+function mmc1_write(d, address, data)
+{
+	for(local i = 0; i < 5; i++){
+		cpu_write(d, address, data >> i);
+	}
+}
+function initalize(d, cpu_banksize, ppu_banksize)
+{
+	cpu_write(d, 0x8000, 0xf0);
+	cpu_write(d, 0x8000, 0x80);
+	mmc1_write(d, 0xa000, 0);
+	mmc1_write(d, 0x8000, 0x1c);
+	mmc1_write(d, 0xe000, 0);
+	cpu_command(d, 0x0000, 0x8000, cpu_banksize);
+	cpu_command(d, 0x2aaa, 0x8000, cpu_banksize);
+	cpu_command(d, 0x5555, 0xc000, cpu_banksize);
+
+	ppu_command(d, 0x0000, 0, 0x0000);
+	ppu_command(d, 0x02aa, 0, 0x1000);
+	ppu_command(d, 0x0555, 0, 0x1000);
+}
+function cpu_transfer(d, start, end, cpu_banksize)
+{
+	local i = 0;
+	for(i = start; i < end - 2; i += 2){
+		cpu_command(d, 0x2aaa, 0x8000, cpu_banksize);
+		cpu_command(d, 0x5555, 0xc000, cpu_banksize);
+		mmc1_write(d, 0x8000, 0x1c);
+		mmc1_write(d, 0xe000, i | 0);
+		cpu_program(d, 0x8000, cpu_banksize);
+		
+		cpu_command(d, 0x5555, 0x8000, cpu_banksize);
+		cpu_command(d, 0x2aaa, 0xc000, cpu_banksize);
+		mmc1_write(d, 0x8000, 0x18);
+		mmc1_write(d, 0xe000, i | 1);
+		cpu_program(d, 0xc000, cpu_banksize);
+	}
+	mmc1_write(d, 0x8000, 0x1c);
+	cpu_command(d, 0x2aaa, 0x8000, cpu_banksize);
+	cpu_command(d, 0x5555, 0xc000, cpu_banksize);
+	mmc1_write(d, 0xe000, i);
+	cpu_program(d, 0x8000, cpu_banksize);
+	cpu_program(d, 0xc000, cpu_banksize);
+}
+
+function ppu_transfer(d, start, end, ppu_banksize)
+{
+	for(local i = start; i < end; i+=2){
+		mmc1_write(d, 0xa000, i)
+		mmc1_write(d, 0xc000, i | 1);
+		ppu_program(d, 0x0000, ppu_banksize * 2);
+	}
+}
