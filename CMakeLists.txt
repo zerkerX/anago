@@ -1,5 +1,4 @@
 # http://alpha/cgi-bin/dwww/usr/share/doc/cmake-data/html/command/add_library.html?highlight=library#imported-libraries
-
 cmake_minimum_required (VERSION 2.6)
 project (anago)
 add_definitions (-DANAGO=1 -DDEBUG=1)
@@ -9,12 +8,18 @@ find_package(PkgConfig REQUIRED QUIET)
 pkg_search_module(SQUIRREL REQUIRED squirrel3)
 pkg_search_module(USB REQUIRED libusb)
 
+configure_file (
+  "${CMAKE_CURRENT_SOURCE_DIR}/build_config.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/build_config.h"
+  )
+
 link_libraries(
     ${SQUIRREL_LDFLAGS}
     ${USB_LDFLAGS}
 )
 include_directories(
     ${SQUIRREL_INCLUDE_DIRS}
+    ${CMAKE_CURRENT_BINARY_DIR}
     ${USB_INCLUDE_DIRS}
     kazzo
 )

@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "memory_manage.h"
+#include "build_config.h"
 #include "file.h"
 
 int buf_load(u8 *buf, const char *file, int size)
@@ -57,12 +58,9 @@ void buf_save(const void *buf, const char *file, int size)
 #define MAX_ALLOWED_PATH 4096
 static char script_path[MAX_ALLOWED_PATH];
 
-/* TODO: Use config generator! */
-#define INSTALL_PREFIX "/usr/local/"
-#define SCRIPT_DIR INSTALL_PREFIX "share/anago/"
-
-/* TODO: Potentially do a more comprehensive honoring of the XDG spec */
+#define SHARE_DIR "/share/anago/"
 #define CONFIG_DIR "/.config/anago/"
+/* TODO: Potentially do a more comprehensive honoring of the XDG spec */
 
 /* Tests if the specified name is in the path. Returns NULL if not found
  * or not suitable, otherwise returns the combined path. */
@@ -107,8 +105,10 @@ const char * find_script(const char * name)
 	if (result == NULL)
 	{
 		/*Not found. Check share next */
-		result = test_path(SCRIPT_DIR, name);
+		strcpy(temppath, CMAKE_INSTALL_PREFIX);
+		strcat(temppath, SHARE_DIR);
 		
+		result = test_path(temppath, name);
 		if (result == NULL)
 		{
 			/* Still not found. Just try opening what 
