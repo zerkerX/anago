@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdlib.h>
 #include "memory_manage.h"
 #include "file.h"
 
@@ -60,9 +61,8 @@ static char script_path[MAX_ALLOWED_PATH];
 #define INSTALL_PREFIX "/usr/local/"
 #define SCRIPT_DIR INSTALL_PREFIX "share/anago/"
 
-/* TODO: Find via some better means. Also maybe don't hardcode .config after */
-#define HOME_PATH "/home/zerker/"
-#define CONFIG_DIR HOME_PATH ".config/anago/"
+/* TODO: Potentially do a more comprehensive honoring of the XDG spec */
+#define CONFIG_DIR "/.config/anago/"
 
 /* Tests if the specified name is in the path. Returns NULL if not found
  * or not suitable, otherwise returns the combined path. */
@@ -94,9 +94,16 @@ static const char * test_path(const char * path, const char * name)
 const char * find_script(const char * name)
 {
 	const char * result = NULL;
+	char temppath[MAX_ALLOWED_PATH];
+	
+	/* Obtain path to $HOME/$CONFIG_DIR. If $HOME not defined, this
+	 * should safely fall through to just a weird path that probably
+	 * won't exist, and we'll try the next case instead */
+	strcpy(temppath, getenv("HOME"));
+	strcat(temppath, CONFIG_DIR);
 	
 	/* Search in user's config folder first */
-	result = test_path(CONFIG_DIR, name);
+	result = test_path(temppath, name);
 	if (result == NULL)
 	{
 		/*Not found. Check share next */
