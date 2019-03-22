@@ -61,6 +61,7 @@ void progress_draw(long program_offset, long program_count, long charcter_offset
 {
 	move(0,0);
 	draw("program memory  ", program_offset, program_count);
+	move(1,0);
 	draw("character memory", charcter_offset, charcter_count);
 	refresh();
 }
