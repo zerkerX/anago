@@ -2,10 +2,22 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <curses.h>
+#include <term.h>
+#include <unistd.h>
 #include "progress.h"
+
+static bool initialized = false;
 
 void progress_init(void)
 {
+	if (!initialized)
+	{
+		if (setupterm(NULL, STDOUT_FILENO, NULL) == OK)
+		{
+			initialized = true;
+		}
+	}
 	printf("\n\n");
 }
 
@@ -42,10 +54,14 @@ static void draw(const char *name, long offset, long count)
 
 void progress_draw(long program_offset, long program_count, long charcter_offset, long charcter_count)
 {
-    /* TODO: Use ncurses instead. */
-    printf("\x1b[2A\x1b[35D");
+	if (initialized)
+	{
+		putp(tparm(cursor_up));
+		putp(tparm(cursor_up));
+		putp(tparm(column_address, 0));
+	}
 	
-    draw("program memory ", program_offset, program_count);
-	draw("charcter memory", charcter_offset, charcter_count);
+	draw("program memory  ", program_offset, program_count);
+	draw("character memory", charcter_offset, charcter_count);
 	fflush(stdout);
 }
