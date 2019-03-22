@@ -7,6 +7,7 @@ add_compile_options(-Wall -Werror)
 find_package(PkgConfig REQUIRED QUIET)
 pkg_search_module(SQUIRREL REQUIRED squirrel3)
 pkg_search_module(USB REQUIRED libusb)
+pkg_search_module(NCURSES REQUIRED ncurses)
 
 configure_file (
   "${CMAKE_CURRENT_SOURCE_DIR}/build_config.h.in"
@@ -16,11 +17,13 @@ configure_file (
 link_libraries(
     ${SQUIRREL_LDFLAGS}
     ${USB_LDFLAGS}
+    ${NCURSES_LDFLAGS}
 )
 include_directories(
     ${SQUIRREL_INCLUDE_DIRS}
     ${CMAKE_CURRENT_BINARY_DIR}
     ${USB_INCLUDE_DIRS}
+    ${NCURSES_INCLUDE_DIRS}
     kazzo
 )
 

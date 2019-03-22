@@ -306,6 +306,7 @@ static SQInteger program_main(HSQUIRRELVM v)
 			progress_draw(d->order_cpu.programming.offset, d->order_cpu.programming.count, d->order_ppu.programming.offset, d->order_ppu.programming.count);
 		}
 	}
+	progress_term();
 	return 0;
 }
 

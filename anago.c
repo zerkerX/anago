@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <locale.h>
 #include "memory_manage.h"
 #include "type.h"
 #include "flash_device.h"
@@ -31,6 +32,7 @@ static bool transtype_flash_set(char mode, struct memory *t)
 	}
 	return true;
 }
+
 static bool transtype_set(const char *mode, struct romimage *t)
 {
 	switch(mode[0]){
@@ -54,6 +56,7 @@ static bool transtype_set(const char *mode, struct romimage *t)
 	}
 	return false;
 }
+
 static bool config_parse(const char *romimage, const char *device_cpu, const char *device_ppu, struct config_flash *c)
 {
 	c->target = romimage;
@@ -87,6 +90,7 @@ static bool config_parse(const char *romimage, const char *device_cpu, const cha
 	}
 	return true;
 }
+
 static void program(int c, char **v)
 {
 	struct config_flash config;
@@ -134,6 +138,7 @@ static void program(int c, char **v)
 	nesbuffer_free(&config.rom, 0);
 	config.reader->open_or_close(READER_CLOSE);
 }
+
 static void dump(int c, char **v)
 {
 	struct config_dump config;
@@ -182,14 +187,17 @@ static void dump(int c, char **v)
 	script_dump_execute(&config);
 	config.reader->open_or_close(READER_CLOSE);
 }
+
 static void usage(const char *v)
 {
 	puts("famicom bus simluator 'anago'");
 	printf("%s [mode] [script] [target] ....\n", v);
 }
+
 int main(int c, char **v)
 {
 	mm_init();
+	setlocale(LC_ALL, "");
 	if(c >= 2){
 		switch(v[1][0]){
 		case 'a': case 'f': case 'F':

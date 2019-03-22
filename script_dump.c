@@ -368,4 +368,7 @@ void script_dump_execute(struct config_dump *c)
 		script_execute(v, c, &d);
 		qr_close(v);
 	}
+	if(c->progress == true){
+		progress_term();
+	}
 }
