@@ -2,6 +2,8 @@ This project is a Linux port of the **anago**
 NES/Famicom flashing and dumping utility 
 (from the [Unagi](https://osdn.net/projects/unagi/wiki/FrontPage) project) which is used with the [kazzo](https://osdn.net/projects/unagi/releases/46303) board. This specifically ports version 0.6.0 which was generally more reliable and had a larger script complement than version 0.6.2. That said, I'm sure some investigation could convert missing scripts, and potentially the 0.6.2 version may be more compatible to begin with, but what can you do. I doubt anyone besides myself will use this anyways.
 
+This particular branch is an experiment using ncurses for screen manipulation. After trying this, it was found that the full curses display is not suitable for this form of application. I'm keeping this branch as an example, but the proper solution is just to use terminfo, which has been merged into the main branch.
+
 Here is a brief summary of the differences between this codebase and the upstream original:
 
  1. Per comments in the upstream **porting.txt** document, all Windows references were removed and usually replaced with **unistd.h**. Sleeps were replaced with usleep accordingly.
