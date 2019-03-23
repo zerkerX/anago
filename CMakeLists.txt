@@ -8,6 +8,14 @@ pkg_search_module(SQUIRREL REQUIRED squirrel3)
 pkg_search_module(USB REQUIRED libusb)
 pkg_search_module(NCURSES REQUIRED ncurses)
 
+add_custom_command(OUTPUT anago.1
+    COMMAND txt2man 
+    ARGS -t anago -r anago-0.6.0l -s 1 -v "Anago/Unagi" anago.1_src > anago.1
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    COMMENT Regenerating makefile
+    DEPENDS anago.1_src )
+add_custom_target(manual DEPENDS anago.1)
+
 configure_file (
   "${CMAKE_CURRENT_SOURCE_DIR}/build_config.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/build_config.h"
@@ -45,4 +53,7 @@ add_executable(anago
 
 install(TARGETS anago
     RUNTIME DESTINATION bin )
-install(DIRECTORY scripts/ DESTINATION share/anago)
+install(FILES anago.1
+    DESTINATION share/man/man1)
+install(DIRECTORY scripts/ 
+    DESTINATION share/anago)
