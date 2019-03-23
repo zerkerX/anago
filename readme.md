@@ -23,6 +23,10 @@ This project only requires the following:
  * [libusb](https://libusb.info/)
  * [cmake](https://cmake.org/)
 
+And to regenerate the manual page:
+
+ * [txt2man](https://github.com/mvertes/txt2man)
+
 On a Debian/Ubuntu-based distro, these can be installed using the following command:
   
     # apt install libsquirrel-dev libusb-dev cmake
@@ -35,6 +39,10 @@ The build sequence is actually quite simple. For a basic build, start with a ter
     $ cd build
     $ cmake ..
     $ make
+
+To regenerate the manual page, if you have **txt2man** installed, use the following:
+
+    $ make manual
     
 ## Install
 
@@ -44,4 +52,4 @@ After the above is run, simply execute the following, as root, in the build fold
     
 # Usage
 
-TODO. A manpage will be included with details.
+Refer to include manual page or original readme files for details.
