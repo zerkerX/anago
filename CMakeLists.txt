@@ -3,6 +3,9 @@ project (anago)
 add_definitions (-DANAGO=1 -DDEBUG=1)
 add_compile_options(-Wall -Werror)
 
+set(VERSION_MAJOR 0)
+set(VERSION_MINOR 6.0l)
+
 find_package(PkgConfig REQUIRED QUIET)
 pkg_search_module(SQUIRREL REQUIRED squirrel3)
 pkg_search_module(USB REQUIRED libusb)
@@ -10,7 +13,7 @@ pkg_search_module(NCURSES REQUIRED ncurses)
 
 add_custom_command(OUTPUT anago.1
     COMMAND txt2man 
-    ARGS -t anago -r anago-0.6.0l -s 1 -v "Anago/Unagi" anago.1_src > anago.1
+    ARGS -t anago -r anago-${VERSION_MAJOR}.{$VERSION_MINOR} -s 1 -v "Anago/Unagi" anago.1_src > anago.1
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     COMMENT Regenerating makefile
     DEPENDS anago.1_src )
@@ -57,3 +60,15 @@ install(FILES anago.1
     DESTINATION share/man/man1)
 install(DIRECTORY scripts/ 
     DESTINATION share/anago)
+
+
+# Now for a CPack installer package
+include (InstallRequiredSystemLibraries)
+set (CPACK_GENERATOR "DEB;TGZ")
+set (CPACK_RESOURCE_FILE_LICENSE  
+     "${CMAKE_CURRENT_SOURCE_DIR}/COPYING")
+set (CPACK_PACKAGE_VERSION_MAJOR "${VERSION_MAJOR}")
+set (CPACK_PACKAGE_VERSION_MINOR "${VERSION_MINOR}")
+set (CPACK_PACKAGE_CONTACT "git@zerker.ca")
+set (CPACK_PACKAGE_DESCRIPTION_SUMMARY "Command-line utility for using the kazzo NES/Famicom cartridge interface board")
+include (CPack)
