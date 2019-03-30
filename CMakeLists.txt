@@ -4,7 +4,8 @@ add_definitions (-DANAGO=1 -DDEBUG=1)
 add_compile_options(-Wall -Werror)
 
 set(VERSION_MAJOR 0)
-set(VERSION_MINOR 6.0l)
+set(VERSION_MINOR 6)
+set(VERSION_PATCH 0l)
 
 find_package(PkgConfig REQUIRED QUIET)
 pkg_search_module(SQUIRREL REQUIRED squirrel3)
@@ -13,7 +14,7 @@ pkg_search_module(NCURSES REQUIRED ncurses)
 
 add_custom_command(OUTPUT anago.1
     COMMAND txt2man 
-    ARGS -t anago -r anago-${VERSION_MAJOR}.{$VERSION_MINOR} -s 1 -v "Anago/Unagi" anago.1_src > anago.1
+    ARGS -t anago -r anago-${VERSION_MAJOR}.{$VERSION_MINOR}.{$VERSION_PATCH} -s 1 -v "Anago/Unagi" anago.1_src > anago.1
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     COMMENT Regenerating makefile
     DEPENDS anago.1_src )
@@ -69,6 +70,8 @@ set (CPACK_RESOURCE_FILE_LICENSE
      "${CMAKE_CURRENT_SOURCE_DIR}/COPYING")
 set (CPACK_PACKAGE_VERSION_MAJOR "${VERSION_MAJOR}")
 set (CPACK_PACKAGE_VERSION_MINOR "${VERSION_MINOR}")
+set (CPACK_PACKAGE_VERSION_PATCH "${VERSION_PATCH}")
 set (CPACK_PACKAGE_CONTACT "git@zerker.ca")
 set (CPACK_PACKAGE_DESCRIPTION_SUMMARY "Command-line utility for using the kazzo NES/Famicom cartridge interface board")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.14), libncursesw5 (>= 6), libstdc++6(>=5.2), libsquirrel3-0, libusb-0.1-4 (>= 2:0.1.12)")
 include (CPack)

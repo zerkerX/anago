@@ -49,6 +49,15 @@ To regenerate the manual page, if you have **txt2man** installed, use the follow
 After the above is run, simply execute the following, as root, in the build folder. This will install to **/usr/local** by default. Refer to cmake documentation for setting the prefix directory, if alternate destinations are needed.
 
     # make install
+
+## Packaging
+
+The packaging process is slightly different than the above, as the prefix directory needs to be explicitly redirected so the tool is aware of the package destination. Execute the following from the **build** directory to create packages:
+
+    $ cmake -D CMAKE_INSTALL_PREFIX=/usr ..
+    $ make package
+
+For packaging formats other than .deb, edit the **CMakeLists** and add the package format to the **CPACK_GENERATOR** line.
     
 # Usage
 
